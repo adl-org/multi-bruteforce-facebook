@@ -25,7 +25,6 @@ id_bteman = []
 id_bgroup = []
 fid_bteman = []
 fid_bgroup = []
-id_group = ''
 br = mechanize.Browser()
 br.set_handle_robots(False)
 br.set_handle_equiv(True)
